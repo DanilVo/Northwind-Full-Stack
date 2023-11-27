@@ -1,0 +1,15 @@
+.CategoriesList>table,
+.CategoriesList th {
+    margin: 40px auto;
+    border: 1px solid;
+}
+
+.CategoriesList td {
+    margin: auto;
+    border: 1px solid;
+}
+
+.CategoriesList img {
+    width: 50px;
+    vertical-align: middle;
+}

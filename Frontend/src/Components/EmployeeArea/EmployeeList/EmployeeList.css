@@ -1,0 +1,11 @@
+.EmployeeList>table,
+.EmployeeList th {
+    margin: 40px auto;
+    border: 1px solid;
+}
+
+.EmployeeList .addBtn {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+}
