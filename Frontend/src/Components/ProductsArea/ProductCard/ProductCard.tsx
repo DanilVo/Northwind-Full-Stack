@@ -8,9 +8,7 @@ type ProductProps = {
   yos: string;
 };
 
-function ProductCard(props: ProductProps): JSX.Element {
-  console.log(props.product.name);
-  
+function ProductCard(props: ProductProps): JSX.Element {  
   return (
     <NavLink to={'/products/details/' + props.product.id}>
       <div className="ProductCard">

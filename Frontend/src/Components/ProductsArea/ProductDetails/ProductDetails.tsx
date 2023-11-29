@@ -18,9 +18,6 @@ function ProductDetails(): JSX.Element {
 
   const [feProduct, setFeProducts] = useState<ProductModel>();
 
-  // console.log(params);
-  // console.log(id);
-
   useEffect(() => {
     productsService
       .getOneProduct(id)

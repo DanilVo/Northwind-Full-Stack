@@ -28,6 +28,7 @@ class EmployeesService {
     }
 
     public async getOneEmployee(id: number): Promise<EmployeeModel> {
+
         const response = await axios.get(appConfig.employeesUrl + id);
 
         const beEmployee = response.data;

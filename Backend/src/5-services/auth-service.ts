@@ -11,8 +11,8 @@ import cyber from '../2-utils/cyber';
 import CredentialModel from '../3-models/credential-model';
 
 class AuthService {
-  public async checkemailTaken(name: string): Promise<boolean> {
-    const sql = `SELECT * FROM users WHERE email = '${name}'`;
+  public async checkEmailTaken(userEmail: string): Promise<boolean> {
+    const sql = `SELECT * FROM users WHERE email = '${userEmail}'`;
 
     const info: OkPacket = await dal.execute(sql);
 
@@ -24,7 +24,7 @@ class AuthService {
     user.postValidation();
 
     // Is email taken:
-    if (!this.checkemailTaken(user.email))
+    if (!this.checkEmailTaken(user.email))
       throw new emailTaken('email has been taken');
 
     // Declare user as regular user:

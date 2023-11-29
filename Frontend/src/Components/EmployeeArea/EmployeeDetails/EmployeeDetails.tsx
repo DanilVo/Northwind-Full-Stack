@@ -11,6 +11,7 @@ function EmployeeDetails(): JSX.Element {
     // Get employeeId from params
     const params = useParams();
     const id = +params.employeeId;
+    
     // Display Employee Data
     const [feEmployee, setFeEmployee] = useState<EmployeeModel>()
 
@@ -20,6 +21,7 @@ function EmployeeDetails(): JSX.Element {
             .then(beEmployee => setFeEmployee(beEmployee))
             .catch(err => notificationService.error(err));
     }, [])
+    
 
     return (
         <div className="EmployeeDetails">

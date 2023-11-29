@@ -7,10 +7,13 @@ import appConfig from '../2-utils/app-config';
 
 class EmployeeService {
   private getEmployeeSelectQuery(): string {
-    return `SELECT EmployeeID AS ID,
-                 CONCAT(FirstName, ' ', LastName) AS Name,
-                 DATE_FORMAT(BirthDate,"%D %M %Y") AS BirthDate,
-                 CONCAT(Country,' ',City) AS Location 
+    return `SELECT EmployeeID AS id,
+                 firstName,
+                 lastName,
+                 DATE_FORMAT(BirthDate,"%D %M %Y") AS birthDate,
+                 country,
+                 city,
+                 title
             FROM employees`;
   }
 

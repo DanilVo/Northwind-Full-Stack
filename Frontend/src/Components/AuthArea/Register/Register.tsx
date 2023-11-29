@@ -32,8 +32,8 @@ function Register(): JSX.Element {
                 <label>Last Name:</label>
                 <input type="text"  {...register("lastName")} />
 
-                <label>Username:</label>
-                <input type="text"  {...register("username")} />
+                <label>Email:</label>
+                <input type="email"  {...register("email")} />
 
                 <label>Password:</label>
                 <input type="password"  {...register("password")} />

@@ -1,5 +1,5 @@
 class CredentialsModel {
-    public username: string;
+    public Email: string;
     public password: string;
 }
 
