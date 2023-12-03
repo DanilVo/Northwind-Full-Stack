@@ -3,6 +3,7 @@ import StatusCode from '../3-models/status-codes';
 import EmployeeModel from '../3-models/employee-model';
 import employeeService from '../5-services/employees-service';
 import path from 'path';
+import blockNonLoggedIn from '../4-middleware/block-non-logged-in';
 
 const router = express.Router();
 
@@ -36,6 +37,7 @@ router.get(
 // Add one employee:
 router.post(
   '/employees',
+  blockNonLoggedIn,
   async (request: Request, response: Response, next: NextFunction) => {
     try {
       request.body.image = request.files?.image;

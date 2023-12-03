@@ -26,9 +26,9 @@ class ProductService {
                  UnitsInStock AS stock,
                  CONCAT('${appConfig.appHost}','/api/products/',ImageName) AS imageUrl 
                  FROM products 
-                 WHERE ProductID = ${id}`;
+                 WHERE ProductID = ? `;
 
-    const products = await dal.execute(sql);
+    const products = await dal.execute(sql, [id]);
 
     const product = products[0];
 
@@ -46,18 +46,18 @@ class ProductService {
                  UnitPrice AS price, 
                  UnitsInStock AS stock 
                  FROM products 
-                 WHERE UnitPrice BETWEEN ${minPrice} AND ${maxPrice}`;
+                 WHERE UnitPrice BETWEEN ? AND ?`;
 
-    const products = await dal.execute(sql);
+    const products = await dal.execute(sql, [minPrice, maxPrice]);
     return products.length === 0 ? 'No Products found' : products;
   }
 
   public async getProductsByCategory(
     categoryId: number
   ): Promise<ProductModel[]> {
-    const sql = `CALL getProductsByCategory(${categoryId})`;
+    const sql = `CALL getProductsByCategory(?)`;
 
-    const container = await dal.execute(sql);
+    const container = await dal.execute(sql, [categoryId]);
 
     const products = container[0];
 
@@ -71,9 +71,14 @@ class ProductService {
     const imageName = await fileSaver.add(product.image);
 
     const sql = `INSERT INTO products(ProductName, UnitPrice,UnitsInStock, ImageName)
-                 VALUES('${product.name}',${product.price},${product.stock}, '${imageName}')`;
+                 VALUES(?,?,?, ?)`;
 
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [
+      product.name,
+      product.price,
+      product.stock,
+      imageName,
+    ]);
 
     product.id = info.insertId;
 
@@ -87,9 +92,13 @@ class ProductService {
   public async addNewProduct(product: ProductModel): Promise<ProductModel> {
     product.postValidation();
 
-    const sql = `CALL addProduct('${product.name}',${product.price},${product.stock})`;
+    const sql = `CALL addProduct(?,?,?)`;
 
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [
+      product.name,
+      product.price,
+      product.stock,
+    ]);
 
     product.id = info.insertId;
 
@@ -108,13 +117,19 @@ class ProductService {
       : existingImageName;
     console.log('new name: ' + imageName);
 
-    const sql = `UPDATE products SET ProductName = '${product.name}',
-                 UnitPrice = ${product.price},
-                 UnitsInStock = ${product.stock},
-                 ImageName = '${imageName}'
-                 WHERE ProductID = ${product.id}`;
+    const sql = `UPDATE products SET ProductName = ?,
+                 UnitPrice = ?,
+                 UnitsInStock = ?,
+                 ImageName = ?
+                 WHERE ProductID = ?`;
 
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [
+      product.name,
+      product.price,
+      product.stock,
+      imageName,
+      product.id,
+    ]);
 
     if (info.affectedRows === 0) throw new ResourceNotFound(product.id);
 
@@ -127,8 +142,8 @@ class ProductService {
 
   private async getExistingImageName(id: number): Promise<string> {
     const sql = `SELECT ImageName FROM products
-                WHERE ProductID = ${id}`;
-    const products = await dal.execute(sql);
+                WHERE ProductID = ?`;
+    const products = await dal.execute(sql,[id]);
     const product = products[0];
     if (!product) return '';
     return product.ImageName;
@@ -137,8 +152,8 @@ class ProductService {
   public async deleteProduct(id: number): Promise<void> {
     const existingImageName = await this.getExistingImageName(id);
 
-    const sql = `DELETE FROM products WHERE ProductID = ${id}`;
-    const info: OkPacket = await dal.execute(sql);
+    const sql = `DELETE FROM products WHERE ProductID = ?`;
+    const info: OkPacket = await dal.execute(sql,[id]);
 
     await fileSaver.delete(existingImageName);
 

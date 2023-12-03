@@ -17,9 +17,9 @@ class EmployeeService {
             FROM employees`;
   }
 
-  private getEmployeeByIdQuery(id: number): string {
+  private getEmployeeByIdQuery(): string {
     return `${this.getEmployeeSelectQuery()} 
-            WHERE EmployeeID = ${id}`;
+            WHERE EmployeeID = ?`;
   }
 
   public async getAllEmployees(): Promise<EmployeeModel[]> {
@@ -29,8 +29,8 @@ class EmployeeService {
   }
 
   public async getOneEmployee(id: number): Promise<EmployeeModel> {
-    const sql = this.getEmployeeByIdQuery(id);
-    const employee = await dal.execute(sql);
+    const sql = this.getEmployeeByIdQuery();
+    const employee = await dal.execute(sql,[id]);
 
     if (!employee[0]) throw new ResourceNotFound(id);
 
@@ -61,11 +61,11 @@ class EmployeeService {
 
   private async getExistingImageName(id: number): Promise<string> {
     const sql = `SELECT PhotoPath FROM employees
-                WHERE EmployeeID = ${id}`;
-    const employees = await dal.execute(sql);
+                WHERE EmployeeID = ?`;
+    const employees = await dal.execute(sql, [id]);
     const employee = employees[0];
     console.log(employee.PhotoPath);
-    
+
     if (!employee) return '';
     return employee.PhotoPath;
   }
@@ -73,24 +73,31 @@ class EmployeeService {
   public async updateEmployee(employee: EmployeeModel): Promise<EmployeeModel> {
     employee.putValidate();
     const existingImageName = await this.getExistingImageName(employee.id);
-    console.log("existing: " + existingImageName);
+    console.log('existing: ' + existingImageName);
 
     const imageName = employee.image
       ? await fileSaver.update(existingImageName, employee.image)
       : existingImageName;
-      console.log("new name: " + imageName);
-
+    console.log('new name: ' + imageName);
 
     const sql = `UPDATE employees SET
-    FirstName = '${employee.firstName}',
-    LastName = '${employee.lastName}',
-    BirthDate = '${employee.birthDate}',
-    Country = '${employee.country}',
-    City = '${employee.city}',
-    PhotoPath = '${imageName}'
-    WHERE EmployeeID = ${employee.id}`;
+    FirstName = ?,
+    LastName = ?,
+    BirthDate = ?,
+    Country = ?,
+    City = ?,
+    PhotoPath = ?
+    WHERE EmployeeID = ?`;
 
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [
+      employee.firstName,
+      employee.lastName,
+      employee.birthDate,
+      employee.country,
+      employee.city,
+      imageName,
+      employee.id,
+    ]);
     if (info.affectedRows === 0) throw new ResourceNotFound(employee.id);
     delete employee.image;
     employee.PhotoPath = `${appConfig.appHost}/api/employees/${imageName}`;
@@ -98,8 +105,8 @@ class EmployeeService {
   }
 
   public async deleteEmployee(id: number): Promise<void> {
-    const sql = `DELETE FROM employees WHERE EmployeeID = ${id}`;
-    const info: OkPacket = await dal.execute(sql);
+    const sql = `DELETE FROM employees WHERE EmployeeID = ?`;
+    const info: OkPacket = await dal.execute(sql, [id]);
     if (info.affectedRows === 0) throw new ResourceNotFound(id);
   }
 }

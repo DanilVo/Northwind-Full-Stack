@@ -7,7 +7,7 @@ class UserModel {
   public firstName: string;
   public lastName: string;
   public email: string;
-  public password: number;
+  public password: string;
   public roleId: RoleModel;
 
   public constructor(user: UserModel) {

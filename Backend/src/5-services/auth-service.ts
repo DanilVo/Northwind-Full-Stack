@@ -12,9 +12,9 @@ import CredentialModel from '../3-models/credential-model';
 
 class AuthService {
   public async checkEmailTaken(userEmail: string): Promise<boolean> {
-    const sql = `SELECT * FROM users WHERE email = '${userEmail}'`;
+    const sql = `SELECT * FROM users WHERE email = ?`;
 
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [userEmail]);
 
     return info.affectedRows >= 1 ? true : false;
   }
@@ -30,11 +30,19 @@ class AuthService {
     // Declare user as regular user:
     user.roleId = RoleModel.User;
 
+    user.password = cyber.hashPassword(user.password);
+
     // Create sql:
     const sql = `INSERT INTO users(firstName, lastName, email, password, roleId)
-                     VALUES('${user.firstName}','${user.lastName}','${user.email}','${user.password}', ${user.roleId})`;
+                     VALUES(?,?,?,?,?)`;
     //save user:
-    const info: OkPacket = await dal.execute(sql);
+    const info: OkPacket = await dal.execute(sql, [
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.password,
+      user.roleId,
+    ]);
     // Add id to user
     user.id = info.insertId;
 
@@ -45,11 +53,15 @@ class AuthService {
   }
 
   public async login(credentials: CredentialModel): Promise<string> {
+    credentials.password = cyber.hashPassword(credentials.password);
     // Create sql:
     const sql = `SELECT * FROM users
-                 WHERE email = '${credentials.email}' AND password = '${credentials.password}' `;
+                 WHERE email = ? AND password = ?`;
 
-    const users = await dal.execute(sql);
+    const users = await dal.execute(sql, [
+      credentials.email,
+      credentials.password,
+    ]);
 
     const user = users[0];
     if (!user) throw new Unauthorized('Incorrect email or password!');
